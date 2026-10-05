@@ -1,0 +1,51 @@
+# Azure DevOps pipeline TEMPLATE. Your cloud team may replace it: what matters is
+#   1) the agent can reach the V1 and V2 URLs, 2) ENV is set, 3) every variable named in project.config.ts is provided,
+#   4) secrets are mapped explicitly under env: (Azure DevOps does not expose secret variables automatically).
+trigger: none
+
+parameters:
+  - name: environment
+    displayName: Environment (selects env/.env.<name> locally, and the variable group here)
+    type: string
+    default: uat
+  - name: grep
+    displayName: Optional filter (endpoint name, row id, @tag). Empty runs everything.
+    type: string
+    default: ''
+
+variables:
+  - group: api-tests-${{ parameters.environment }}   # holds ODS_CREW_V1_URL, ODS_CREW_V2_URL, APIM_SUBSCRIPTION_KEY_V1/V2 ...
+
+pool:
+  name: Default   # an agent that can reach the APIs (self hosted if they are internal)
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '20.x'
+  - script: npm install
+    displayName: Install
+  - script: npm run typecheck && npm run lint && npm run test:selfcheck
+    displayName: Framework checks (no API calls)
+    env:
+      ENV: ${{ parameters.environment }}
+  - script: npx playwright test --project=api ${{ if ne(parameters.grep, '') }}--grep "${{ parameters.grep }}"${{ end }}
+    displayName: API tests
+    env:
+      ENV: ${{ parameters.environment }}
+      CI: 'true'
+      ODS_CREW_V1_URL: $(ODS_CREW_V1_URL)
+      ODS_CREW_V2_URL: $(ODS_CREW_V2_URL)
+      APIM_SUBSCRIPTION_KEY_V1: $(APIM_SUBSCRIPTION_KEY_V1)   # secret: must be mapped here
+      APIM_SUBSCRIPTION_KEY_V2: $(APIM_SUBSCRIPTION_KEY_V2)   # secret: must be mapped here
+      # PROXY_URL: $(PROXY_URL)
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: JUnit
+      testResultsFiles: 'reports/**/junit/results.xml'
+  - task: PublishPipelineArtifact@1
+    condition: succeededOrFailed()
+    inputs:
+      targetPath: reports
+      artifact: playwright-reports

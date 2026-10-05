@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TEMPLATE: copy this file to <endpointName>.schema.json and replace the properties. This file itself is not used by any test.",
+  "type": "object",
+  "required": ["crews"],
+  "properties": {
+    "crews": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string" }
+        }
+      }
+    }
+  }
+}

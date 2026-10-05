@@ -1,0 +1,41 @@
+[
+    {
+        "endpoint": "validLicenseCrewList",
+        "id": "TC01",
+        "description": "valid license crew list returns data",
+        "expectedStatus": 200,
+        "tags": ["crew-license"]
+    },
+    {
+        "endpoint": "crewsForFlightNumberAndDatesRange",
+        "id": "TC02",
+        "description": "crew list by flight number and date range returns data",
+        "query": { "from-date": "2026-09-01", "to-date": "2026-10-01", "number": "C89275" },
+        "expectedStatus": 200,
+        "tags": ["crew-flight-range"]
+    },
+    {
+        "endpoint": "crewsForFlightDateRangeAndLegsOriginDestination",
+        "id": "TC03",
+        "description": "crew list by flight date range and origin destination returns data",
+        "query": { "from-date": "2026-09-29", "to-date": "2026-10-01" },
+        "expectedStatus": 200,
+        "tags": ["smoke"]
+    },
+    {
+        "endpoint": "crewsForRouteDatesRange",
+        "id": "TC04",
+        "description": "crew list by route date range returns data",
+        "query": { "from-date": "2026-09-23", "to-date": "2026-09-24" },
+        "expectedStatus": 200,
+        "tags": ["smoke"]
+    },
+    {
+        "endpoint": "crewsForRouteDatesRangeAndLegsInSegmentsWithOriginAndDestination",
+        "id": "TC05",
+        "description": "crew list by route segments and origin destination returns data",
+        "query": { "from-date": "2026-09-28", "to-date": "2026-09-30", "segments-origin": "LUX", "segments-destination": "HKG" },
+        "expectedStatus": 200,
+        "tags": ["smoke"]
+    }
+]
