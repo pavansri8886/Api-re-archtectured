@@ -9,9 +9,8 @@
  * How failures work: the status check stops the test (nothing else makes sense without it).
  * Schema, expected values and differences are "soft": all of them are reported, then the test fails.
  *
- * LOCAL ONLY debugging: the commented block inside showResponse() prints a response.
- * Responses may contain personal data. Keep it commented out when you commit. A selfcheck test fails if an active
- * console.log is left in src or projects.
+ * LOCAL ONLY schema extraction: set PRINT_V1_JSON=true to print V1 response bodies.
+ * Responses may contain personal data. Leave the option unset except when extracting schemas.
  */
 import { test, expect } from './fixtures';
 import { ApiSession } from './http/session';
@@ -56,9 +55,15 @@ export function tagsOf(row: TestCase): string[] {
 }
 
 function showResponse(response: ApiResponse): void {
-  // ---- LOCAL ONLY: remove the two slashes of the next line to print the response, then put them back before commit ----
-  // console.log(response.version, response.status, JSON.stringify(response.body, null, 2));
-  void response;
+  // TEMPORARY V1 SCHEMA EXTRACTION: remove this block after extracting the schemas.
+  if (response.version === 'v1' && process.env.PRINT_V1_JSON === 'true') {
+    process.stdout.write(
+      `\n--- BEGIN V1 JSON (HTTP ${response.status}) ${response.url} ---\n` +
+        `${JSON.stringify(response.body, null, 2)}\n` +
+        '--- END V1 JSON ---\n',
+    );
+  }
+  // END TEMPORARY V1 SCHEMA EXTRACTION BLOCK.
 }
 
 export async function runContractTest(

@@ -137,8 +137,12 @@ Optional environment settings: `PROXY_URL`, `NO_PROXY` (Playwright ignores HTTPS
 
 ## Debugging (local only)
 
-`src/steps.ts`, function `showResponse`: remove the two slashes in front of the `console.log` line to print responses.
-Put them back before committing. `npm run test:selfcheck` fails if an active `console.log` is left in `src` or `projects`.
+To print V1 response bodies for schema extraction, enable the temporary output in `src/steps.ts` with
+`PRINT_V1_JSON=true`. PowerShell: `$env:PRINT_V1_JSON="true"; $env:ENV="uat"; npx playwright test --project=api`.
+CMD: `set PRINT_V1_JSON=true && set ENV=uat && npx playwright test --project=api`.
+The output includes the HTTP status and URL between `BEGIN V1 JSON` / `END V1 JSON` markers. Response bodies may contain
+personal data, so use this only on a trusted local machine and leave the option unset otherwise. The clearly marked
+temporary block in `src/steps.ts` can be removed after extracting the schemas.
 
 ## What happens when something is wrong
 
