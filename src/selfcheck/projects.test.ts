@@ -11,6 +11,7 @@ import { loadProjectConfig } from '../config/projectConfig';
 import { loadTestCases } from '../data/loadTestCases';
 import { loadEndpointSchema } from '../data/schemaFiles';
 import { compileEndpointSchema } from '../checks/schema';
+import { EndpointDefinitionInput, normalizeEndpoint } from '../types';
 
 const dirs = (p: string) => fs.readdirSync(p, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name);
 const projects = dirs(PROJECTS_DIR);
@@ -41,13 +42,13 @@ for (const project of projects) {
         const endpointsFile = path.join(projectDir, 'endpoints', `${api}.endpoints.ts`);
         expect(fs.existsSync(endpointsFile), `missing endpoints/${api}.endpoints.ts`).toBe(true);
         // eslint-disable-next-line @typescript-eslint/no-require-imports
-                const endpoints = require(endpointsFile).default as Record<string, { method: string; path: string | { v2?: string } }>;
+                const endpoints = require(endpointsFile).default as Record<string, EndpointDefinitionInput>;
         const names = Object.keys(endpoints);
         expect(names.length, 'the endpoints file exports no endpoints').toBeGreaterThan(0);
 
         const problems: string[] = [];
         for (const name of names) {
-                    const p = endpoints[name]?.path;
+          const p = normalizeEndpoint(endpoints[name]).path;
           if (!(typeof p === 'string' ? p : p?.v2)) problems.push(`endpoint ${name}: the path is missing (use a text, or { v1, v2 })`);
           try {
                 compileEndpointSchema(loadEndpointSchema(ctx, name));

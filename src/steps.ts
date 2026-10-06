@@ -22,7 +22,14 @@ import { validateSchema } from './checks/schema';
 import { checkFields } from './checks/fields';
 import { normalize } from './compare/normalize';
 import { diff, formatDifferences } from './compare/diff';
-import { ApiContext, ApiResponse, ApiVersion, EndpointDefinition, TestCase } from './types';
+import {
+  ApiContext,
+  ApiResponse,
+  ApiVersion,
+  EndpointDefinitionInput,
+  normalizeEndpoint,
+  TestCase,
+} from './types';
 
 export interface ApiPlan {
   rows: TestCase[];
@@ -30,7 +37,7 @@ export interface ApiPlan {
   compare: boolean;
 }
 
-export function planApi(ctx: ApiContext, endpoints: Record<string, EndpointDefinition>): ApiPlan | undefined {
+export function planApi(ctx: ApiContext, endpoints: Record<string, EndpointDefinitionInput>): ApiPlan | undefined {
   try {
     const settings = projectSettings(ctx.project);
     const rows = loadTestCases(ctx, Object.keys(endpoints));
@@ -69,12 +76,13 @@ function showResponse(response: ApiResponse): void {
 export async function runContractTest(
   session: ApiSession,
   ctx: ApiContext,
-  endpoints: Record<string, EndpointDefinition>,
+  endpoints: Record<string, EndpointDefinitionInput>,
   row: TestCase,
   version: ApiVersion,
 ): Promise<void> {
   const name = version.toUpperCase();
-  const response = await test.step(`Request ${name}`, () => session.get(ctx, row.endpoint, endpoints[row.endpoint], row, version));
+  const endpoint = normalizeEndpoint(endpoints[row.endpoint]);
+  const response = await test.step(`Request ${name}`, () => session.get(ctx, row.endpoint, endpoint, row, version));
   showResponse(response);
 
   await test.step(`Status is ${row.expectedStatus}`, () => {
@@ -100,11 +108,11 @@ export async function runContractTest(
 export async function runCompareTest(
   session: ApiSession,
   ctx: ApiContext,
-  endpoints: Record<string, EndpointDefinition>,
+  endpoints: Record<string, EndpointDefinitionInput>,
   row: TestCase,
 ): Promise<void> {
   test.skip(!!row.skipComparison, row.skipComparison);
-  const endpoint = endpoints[row.endpoint];
+  const endpoint = normalizeEndpoint(endpoints[row.endpoint]);
 
   const [v1, v2] = await test.step('Request V1 and V2', () =>
     Promise.all([

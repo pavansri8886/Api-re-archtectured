@@ -17,7 +17,7 @@ data checker) sets `compare: false` and gets contract tests only.
 ```
 projects/<project>/
   project.config.ts            where the APIs live (env variable NAMES), auth, ignore rules, which test kinds
-  endpoints/<api>.endpoints.ts how to call each endpoint (method, v1 and v2 path)
+  endpoints/<api>.endpoints.ts endpoint paths; strings are GET shorthand, objects configure other methods/options
   testdata/<api>.testdata.json one row per test
   schemas/<api>/<endpoint>.schema.json   JSON schema (draft 07) of the response, one per endpoint
   tests/<api>.spec.ts          creates the tests from the rows (same file shape for every API)
@@ -38,6 +38,25 @@ reports/   html and junit per run (not committed)
 Names connect the pieces: `tests/crew.spec.ts` uses `endpoints/crew.endpoints.ts`, `testdata/crew.testdata.json`
 and `schemas/crew/<endpoint>.schema.json`. The `ctx = apiContextFrom(__dirname, 'crew')` line in the spec must carry the
 same name as the file.
+
+Endpoint strings mean GET and are the concise default:
+
+```ts
+export default {
+  validLicenseCrewList: '/validLicenseCrewList',
+};
+```
+
+Use a full definition for a non-GET method, a different path by API version, endpoint-specific headers, or comparison
+rules:
+
+```ts
+import { defineEndpoint } from '../../../src/types';
+
+export default {
+  search: defineEndpoint({ method: 'POST', path: '/search', headers: { Accept: 'application/json' } }),
+};
+```
 
 ## Running
 

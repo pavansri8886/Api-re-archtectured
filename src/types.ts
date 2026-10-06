@@ -37,6 +37,14 @@ export interface EndpointDefinition extends CompareRules {
   headers?: Record<string, string>;
 }
 
+/** A path string is shorthand for a GET endpoint; use a definition for other methods or options. */
+export type EndpointDefinitionInput = EndpointDefinition | string;
+
+/** Converts endpoint shorthand to the full definition expected by the request pipeline. */
+export function normalizeEndpoint(definition: EndpointDefinitionInput): EndpointDefinition {
+  return typeof definition === 'string' ? { method: 'GET', path: definition } : definition;
+}
+
 /** Identity function. It exists only so endpoint files get type checking and autocomplete. */
 export function defineEndpoint(definition: EndpointDefinition): EndpointDefinition {
   return definition;
