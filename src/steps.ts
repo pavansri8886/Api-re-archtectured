@@ -18,7 +18,7 @@ import { ApiSession } from './http/session';
 import { projectSettings } from './config/projectConfig';
 import { rulesFor } from './config/projectConfig';
 import { loadTestCases } from './data/loadTestCases';
-import { loadSchema, schemaPath } from './data/schemaFiles';
+import { loadEndpointSchema } from './data/schemaFiles';
 import { validateSchema } from './checks/schema';
 import { checkFields } from './checks/fields';
 import { normalize } from './compare/normalize';
@@ -81,8 +81,8 @@ export async function runContractTest(
       test.info().annotations.push({ type: 'schema', description: `not applicable: the expected status is ${row.expectedStatus}, an error response` });
       return;
     }
-    const schema = loadSchema(ctx, row.endpoint);
-    const errors = validateSchema(schema, schemaPath(ctx, row.endpoint), response.body);
+    const schema = loadEndpointSchema(ctx, row.endpoint);
+    const errors = validateSchema(schema, response.body);
     expect.soft(errors, `${name} response breaks the schema (${errors.length}):\n  ${errors.slice(0, 30).join('\n  ')}`).toEqual([]);
   });
 

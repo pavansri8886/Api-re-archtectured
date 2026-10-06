@@ -2,43 +2,28 @@ import { defineEndpoint } from '../../../src/types';
 
 const validLicenseCrewList = defineEndpoint({
   method: 'GET',
-  path: {
-    v1: '/validLicenseCrewList',
-    v2: '/validLicenseCrewList',
-  },
+  path: '/validLicenseCrewList',
 });
 
 const crewsForFlightNumberAndDatesRange = defineEndpoint({
   method: 'GET',
-  path: {
-    v1: '/crewsForFlightNumberAndDatesRange',
-    v2: '/crewsForFlightNumberAndDatesRange',
-  },
+  path: '/crewsForFlightNumberAndDatesRange',
 });
 
 const crewsForFlightDateRangeAndLegsOriginDestination = defineEndpoint({
   method: 'GET',
-  path: {
-    v1: '/crewsForFlightDateRangeAndLegsOriginDestination',
-    v2: '/crewsForFlightDateRangeAndLegsOriginDestination',
-  },
+  path: '/crewsForFlightDateRangeAndLegsOriginDestination',
 });
 
 const crewsForRouteDatesRange = defineEndpoint({
   method: 'GET',
-  path: {
-    v1: '/crewsForRouteDatesRange',
-    v2: '/crewsForRouteDatesRange',
-  },
+  path: '/crewsForRouteDatesRange',
 });
 
 const crewsForRouteDatesRangeAndLegsInSegmentsWithOriginAndDestination =
   defineEndpoint({
     method: 'GET',
-    path: {
-      v1: '/crewsForRouteDatesRangeAndLegsInSegmentsWithOriginAndDestination',
-      v2: '/crewsForRouteDatesRangeAndLegsInSegmentsWithOriginAndDestination',
-    },
+    path: '/crewsForRouteDatesRangeAndLegsInSegmentsWithOriginAndDestination',
   });
 
 export default {

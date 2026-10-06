@@ -22,7 +22,7 @@ export class ApiClient {
   ) {}
 
   async send(endpoint: EndpointDefinition, testCase: TestCase): Promise<ApiResponse> {
-    const template = endpoint.path[this.version];
+      const template = typeof endpoint.path === 'string' ? endpoint.path : endpoint.path[this.version];
     if (!template) throw new Error(`This endpoint has no ${this.version} path`);
 
     const url = joinUrl(this.target.baseUrl, fillPath(template, testCase.pathParams));

@@ -27,8 +27,12 @@ export interface CompareRules {
 
 export interface EndpointDefinition extends CompareRules {
   method: HttpMethod;
-  /** Path templates. {name} is filled from pathParams in the test data. v1 is optional so V1 can be retired. */
-  path: { v1?: string; v2: string };
+  /**
+   * Path template. {name} is filled from pathParams in the test data.
+   * One text when V1 and V2 use the same path: path: '/validLicenseCrewList'
+   * Two paths when they differ: path: { v1: '/old/x', v2: '/new/x' } (v1 is optional so V1 can be retired).
+   */
+  path: string | { v1?: string; v2: string };
   /** Headers every call to this endpoint needs. */
   headers?: Record<string, string>;
 }
