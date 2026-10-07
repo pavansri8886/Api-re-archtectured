@@ -86,7 +86,7 @@ export interface ProjectConfig {
   rules?: CompareRules;
   /** Versions that get contract tests (status, schema, expected values). Default: ['v2']. */
   contractVersions?: ApiVersion[];
-  /** Whether V1 is compared with V2. Default: true. Set false for a project with one version only. */
+  /** Temporary local V1/V2 progression comparison. Default: false; never run when CI is set. */
   compare?: boolean;
 }
 

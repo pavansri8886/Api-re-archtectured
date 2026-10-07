@@ -1,5 +1,5 @@
 # Azure DevOps pipeline TEMPLATE. Your cloud team may replace it: what matters is
-#   1) the agent can reach the V1 and V2 URLs, 2) ENV is set, 3) every variable named in project.config.ts is provided,
+#   1) the agent can reach the V2 URL, 2) ENV is set, 3) every V2 contract-test variable is provided,
 #   4) secrets are mapped explicitly under env: (Azure DevOps does not expose secret variables automatically).
 trigger: none
 
@@ -14,7 +14,7 @@ parameters:
     default: ''
 
 variables:
-  - group: api-tests-${{ parameters.environment }}   # holds ODS_CREW_V1_URL, ODS_CREW_V2_URL, APIM_SUBSCRIPTION_KEY_V1/V2 ...
+  - group: api-tests-${{ parameters.environment }}   # holds ODS_CREW_V2_URL and APIM_SUBSCRIPTION_KEY_V2
 
 pool:
   name: Default   # an agent that can reach the APIs (self hosted if they are internal)
@@ -34,9 +34,7 @@ steps:
     env:
       ENV: ${{ parameters.environment }}
       CI: 'true'
-      ODS_CREW_V1_URL: $(ODS_CREW_V1_URL)
       ODS_CREW_V2_URL: $(ODS_CREW_V2_URL)
-      APIM_SUBSCRIPTION_KEY_V1: $(APIM_SUBSCRIPTION_KEY_V1)   # secret: must be mapped here
       APIM_SUBSCRIPTION_KEY_V2: $(APIM_SUBSCRIPTION_KEY_V2)   # secret: must be mapped here
       # PROXY_URL: $(PROXY_URL)
   - task: PublishTestResults@2

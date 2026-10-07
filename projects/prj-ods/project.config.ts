@@ -29,4 +29,7 @@ export default defineProject({
   rules: {
     ignore: ['**.traceId', '**.correlationId'],
   },
+
+  // Temporary progression checks are local-only and disabled by default.
+  compare: false,
 });

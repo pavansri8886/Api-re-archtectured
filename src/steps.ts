@@ -3,13 +3,13 @@
  * What it does: the checks that every API spec file runs, written once.
  *   planApi          loads and checks the project config and test data. On a problem it registers ONE failing test
  *                    for this API and returns nothing, so other APIs still run.
- *   runContractTest  one V2 (or V1) response: status, schema, expected values.
- *   runCompareTest   V1 and V2 response for the same row: both statuses, then every difference.
+ *   runContractTest  one V2 response: status, payload, schema, expected values.
+ *   runCompareTest   temporary V1/V2 progression check; never included in CI.
  *
  * How failures work: the status check stops the test (nothing else makes sense without it).
  * Schema, expected values and differences are "soft": all of them are reported, then the test fails.
  *
- * LOCAL ONLY schema extraction: set PRINT_V1_JSON=true to print V1 response bodies.
+ * LOCAL ONLY schema extraction: set PRINT_V2_JSON=true to print V2 response bodies.
  * Responses may contain personal data. Leave the option unset except when extracting schemas.
  */
 import { test, expect } from './fixtures';
@@ -41,7 +41,11 @@ export function planApi(ctx: ApiContext, endpoints: Record<string, EndpointDefin
   try {
     const settings = projectSettings(ctx.project);
     const rows = loadTestCases(ctx, Object.keys(endpoints));
-    return { rows, contractVersions: settings.contractVersions, compare: settings.compare };
+    return {
+      rows,
+      contractVersions: process.env.CI ? ['v2'] : settings.contractVersions,
+      compare: settings.compare && !process.env.CI,
+    };
   } catch (error) {
     const message = (error as Error).message;
     test(`${ctx.project}/${ctx.api}: setup problem`, () => {
@@ -62,15 +66,15 @@ export function tagsOf(row: TestCase): string[] {
 }
 
 function showResponse(response: ApiResponse): void {
-  // TEMPORARY V1 SCHEMA EXTRACTION: remove this block after extracting the schemas.
-  if (response.version === 'v1' && process.env.PRINT_V1_JSON === 'true') {
+  // TEMPORARY V2 SCHEMA EXTRACTION: remove this block after extracting the schemas.
+  if (response.version === 'v2' && process.env.PRINT_V2_JSON === 'true') {
     process.stdout.write(
-      `\n--- BEGIN V1 JSON (HTTP ${response.status}) ${response.url} ---\n` +
+      `\n--- BEGIN V2 JSON (HTTP ${response.status}) ${response.url} ---\n` +
         `${JSON.stringify(response.body, null, 2)}\n` +
-        '--- END V1 JSON ---\n',
+        '--- END V2 JSON ---\n',
     );
   }
-  // END TEMPORARY V1 SCHEMA EXTRACTION BLOCK.
+  // END TEMPORARY V2 SCHEMA EXTRACTION BLOCK.
 }
 
 export async function runContractTest(
@@ -87,6 +91,11 @@ export async function runContractTest(
 
   await test.step(`Status is ${row.expectedStatus}`, () => {
     expect(response.status, `${name} returned status ${response.status}, the test data expects ${row.expectedStatus}`).toBe(row.expectedStatus);
+  });
+
+  await test.step('Payload returned', () => {
+    const hasPayload = response.body !== null && response.body !== undefined && response.body !== '';
+    expect.soft(hasPayload, `${name} returned no response payload`).toBe(true);
   });
 
   await test.step('Schema', () => {
@@ -120,9 +129,6 @@ export async function runCompareTest(
       session.get(ctx, row.endpoint, endpoint, row, 'v2'),
     ]),
   );
-  showResponse(v1);
-  showResponse(v2);
-
   await test.step(`Both statuses are ${row.expectedStatus}`, () => {
     expect(v1.status, `V1 returned status ${v1.status}, the test data expects ${row.expectedStatus}`).toBe(row.expectedStatus);
     expect(v2.status, `V2 returned status ${v2.status}, the test data expects ${row.expectedStatus}`).toBe(row.expectedStatus);

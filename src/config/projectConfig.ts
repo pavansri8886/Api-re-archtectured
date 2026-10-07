@@ -58,7 +58,7 @@ export function loadProjectConfig(project: string): ProjectConfig {
 /** Which kinds of tests a project gets. */
 export function projectSettings(project: string): { contractVersions: ApiVersion[]; compare: boolean } {
   const config = loadProjectConfig(project);
-  return { contractVersions: config.contractVersions ?? ['v2'], compare: config.compare ?? true };
+  return { contractVersions: config.contractVersions ?? ['v2'], compare: config.compare ?? false };
 }
 
 export interface ResolvedTarget {
