@@ -44,14 +44,30 @@ export class ApiClient {
     });
     const durationMs = Date.now() - started;
 
-    const text = await res.text();
-    let body: unknown = text;
-    try {
-      body = text ? JSON.parse(text) : null;
-    } catch {
-      // not JSON: keep the raw text so it can still be compared
-    }
+    const body = parseResponseBody(await res.text());
     return { version: this.version, url: res.url(), status: res.status(), headers: res.headers(), body, durationMs };
+  }
+}
+
+export function parseResponseBody(text: string): unknown {
+  if (!text) return null;
+
+  let body: unknown;
+  try {
+    body = JSON.parse(text);
+  } catch {
+    return text;
+  }
+
+  if (typeof body !== 'string') return body;
+
+  const nestedText = body.trim();
+  if (!nestedText.startsWith('{') && !nestedText.startsWith('[')) return body;
+
+  try {
+    return JSON.parse(nestedText);
+  } catch {
+    return body;
   }
 }
 
